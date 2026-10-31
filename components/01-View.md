@@ -195,7 +195,68 @@ export default function DashboardCard() {
   );
 }
 ```
+**S12 (zor). İkinci bir butonla çubuğun rengi değişsin**
+```jsx
+import { useState } from 'react';
+import { SafeAreaView, View, Text, Button } from 'react-native';
 
+const COLORS = ['#38bdf8', '#22c55e', '#f97316', '#ef4444'];        // 👈 YENİ: sırayla dönecek renkler (mavi, yeşil, turuncu, kırmızı)
+
+export default function DashboardCard() {
+  const [progress, setProgress] = useState(65);
+  const [colorIndex, setColorIndex] = useState(0);                  // 👈 YENİ: şu an kaçıncı renkteyiz
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#020617' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24 }}>
+        <View style={{ padding: 24, borderRadius: 20, backgroundColor: '#0f172a', gap: 20 }}>
+          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+            <Text style={{ color: '#e2e8f0', fontSize: 18, fontWeight: '600' }}>
+              Daily Lesson Progress
+            </Text>
+            <Text style={{ color: COLORS[colorIndex], fontWeight: '600' }}>%{progress}</Text>  {/* 👈 yazı da çubukla aynı renk */}
+          </View>
+          <View style={{ height: 8, borderRadius: 8, backgroundColor: '#1e293b' }}>
+            <View
+              style={{
+                width: `${progress}%`,
+                height: '100%',
+                borderRadius: 8,
+                backgroundColor: COLORS[colorIndex],                 // 👈 sabit renk yerine state'teki renk
+              }}
+            />
+          </View>
+          {/* İki butonu yan yana dizmek için row */}
+          <View style={{ flexDirection: 'row', justifyContent: 'space-around' }}>
+            <Button
+              title="+10%"
+              onPress={() => setProgress(p => Math.min(p + 10, 100))}
+            />
+            <Button
+              title="Renk değiştir"
+              onPress={() => setColorIndex(i => (i + 1) % COLORS.length)}  // 👈 0→1→2→3→0... sonsuz döngü
+            />
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+> `% COLORS.length` mantığı: son renkten sonra index 4 olur, 4 % 4 = 0 olduğu için tekrar ilk renge döner. Renk eklemek için sadece `COLORS` dizisine yeni bir renk yazman yeterli.
+
+**S13 (zor). Çubuğun rengi ilerlemeye göre kendiliğinden değişsin**
+```jsx
+// S11'in kodunda, useState satırının hemen ALTINA ekle:
+const barColor =
+  progress >= 80 ? '#22c55e' :   // %80 ve üstü → yeşil
+  progress >= 50 ? '#facc15' :   // %50–79     → sarı
+  '#ef4444';                     // %50 altı    → kırmızı
+
+// İçteki dolgu View'ında:
+backgroundColor: barColor,       // 👈 '#38bdf8' yerine
+```
+> Ayrı bir state'e gerek yok, çünkü renk `progress`'ten hesaplanıyor. Butona basınca progress değişir, component yeniden render olur ve renk de kendiliğinden güncellenir.
 ---
 
 ## 📦 Temel Kod 2 – Responsive Grid (onLayout)
