@@ -234,6 +234,11 @@ const total = Number(first.replace(',', '.')) + Number(second.replace(',', '.'))
 ```jsx
 {result === null ? 'Enter two valid numbers' : `${first} + ${second} = ${result}`}   // 👈 template string
 ```
+> ⚠️ Bu formatta iki input'un `onChangeText`'ine de `setResult(null)` eklenmeli, yoksa butona basmadan sayı değiştirilince ekranda yanlış işlem görünür. Açıklaması S12'nin altında.
+> ```jsx
+> onChangeText={(text) => { setFirst(text); setResult(null); }}
+> onChangeText={(text) => { setSecond(text); setResult(null); }}
+> ```
 
 **S11. Butonu büyük, yuvarlak köşeli ve özel renkli yap (Button'da style olmadığı için)**
 ```jsx
@@ -298,7 +303,10 @@ export default function SumCalculator() {
             placeholder="Bir sayı gir"
             keyboardType="numeric"
             value={first}
-            onChangeText={setFirst}
+            onChangeText={(text) => {
+              setFirst(text);      // 👈 yazılanı kaydet (eskiden sadece bu vardı)
+              setResult(null);     // 👈 YENİ: sayı değişince eski sonucu sil (açıklaması kodun altında)
+            }}
             style={{
               borderWidth: 1,
               borderColor: '#d4d4d8',
@@ -331,6 +339,16 @@ export default function SumCalculator() {
 > - Sabit sayı ekle: `const total = Number(first) + MULTIPLIER;`
 > - Karesini al: `const total = Number(first) * Number(first);`
 > - Yarısını al: `const total = Number(first) / 2;`
+> **`setResult(null)` ne işe yarıyor?** Sonuç metninde hem `first` (input'taki sayı) hem `result` (hesaplanan sonuç) gösteriliyor. Ama ikisi farklı zamanlarda güncelleniyor:
+> - `first` → kullanıcı her harf yazdığında **anında** değişir.
+> - `result` → sadece butona **basınca** değişir.
+>
+> Bu satır olmasaydı şu olurdu:
+> 1. 10 yaz, butona bas → ekranda `10 × 5 = 50` ✅
+> 2. Butona basmadan input'u 20 yap → ekranda `20 × 5 = 50` ❌ (first yeni, result eski)
+>
+> `setResult(null)` ile kullanıcı yeni bir şey yazdığı anda eski sonuç silinir, ekranda "Geçerli bir sayı gir" görünür ve doğru sonucu görmek için tekrar butona basılır.
+> Sonuç metninde sadece `{result}` gösteriliyorsa (hocanın orijinalindeki gibi) bu sorun oluşmaz, satıra gerek kalmaz.
 > ⚠️ İşareti değiştirirsen ekrandaki yazıları da güncelle: başlıktaki "ile çarp", buton yazısındaki `×` ve sonuç metnindeki `×`. Kod bunlar olmadan da çalışır ama ekranda yanlış işlem yazar.
 
 **S13. Bölme yap, ikinci sayı 0 ise "Sıfıra bölünemez!" uyarısı çıksın**
