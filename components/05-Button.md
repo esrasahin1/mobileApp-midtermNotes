@@ -255,6 +255,83 @@ import { SafeAreaView, Text, TextInput, TouchableOpacity, View } from 'react-nat
 </TouchableOpacity>
 ```
 
+**S12. Tek sayı al, sabit bir sayıyla çarp (ör. × 5)**
+
+*Soru ne istiyor:* İkinci input yerine sabit bir sayı kullanılsın. Üç değişiklik: `second` state'i ve ikinci TextInput **silinir**, component'in DIŞINA sabit **eklenir**, hesaplamada `Number(second)` yerine sabit **yazılır**. Birden fazla yerden silme olduğu için **tam kod** (App.js'in tamamının yerine):
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+const MULTIPLIER = 5;   // 👈 SABİT SAYI (component DIŞINDA). "7 ile çarp" denirse sadece burayı değiştir
+
+export default function SumCalculator() {
+  const [first, setFirst] = useState('');
+  // 👈 second state'i SİLİNDİ
+  const [result, setResult] = useState(null);
+
+  const handleMultiply = () => {
+    const total = Number(first) * MULTIPLIER;            // 👈 ikinci sayı yerine sabit
+    setResult(Number.isFinite(total) ? total : null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a' }}>
+          Sayıyı {MULTIPLIER} ile çarp                     {/* 👈 sabit başlıkta da görünsün */}
+        </Text>
+
+        <View
+          style={{
+            borderRadius: 16,
+            backgroundColor: '#fff',
+            padding: 20,
+            gap: 16,
+            shadowColor: '#000',
+            shadowOpacity: 0.05,
+            shadowRadius: 12,
+            elevation: 2,
+          }}
+        >
+          {/* TEK INPUT – ikinci TextInput SİLİNDİ */}
+          <TextInput
+            placeholder="Bir sayı gir"
+            keyboardType="numeric"
+            value={first}
+            onChangeText={setFirst}
+            style={{
+              borderWidth: 1,
+              borderColor: '#d4d4d8',
+              borderRadius: 10,
+              paddingHorizontal: 12,
+              paddingVertical: 12,
+            }}
+          />
+
+          <Button
+            title={`× ${MULTIPLIER}`}                      // 👈 buton yazısı: "× 5"
+            onPress={handleMultiply}
+            disabled={first === ''}                        // 👈 boşken basılamasın (yoksa 0 × 5 = 0 yazar)
+          />
+
+          <View>
+            <Text style={{ color: '#475569' }}>Sonuç:</Text>
+            <Text style={{ fontSize: 24, fontWeight: '700', color: '#2563eb' }}>
+              {result === null ? 'Geçerli bir sayı gir' : `${first} × ${MULTIPLIER} = ${result}`}
+            </Text>
+          </View>
+        </View>
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+> Aynı yapıyla başka işlemler (sadece `handleMultiply` içindeki satır değişir):
+> - %18 KDV ekle: `const total = Number(first) * 1.18;`
+> - Sabit sayı ekle: `const total = Number(first) + MULTIPLIER;`
+> - Karesini al: `const total = Number(first) * Number(first);`
+> - Yarısını al: `const total = Number(first) / 2;`
+
 ---
 
 ## 📦 Temel Kod 2 – Geri Sayım (Başlat / Duraklat / Sıfırla)
