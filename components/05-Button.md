@@ -331,6 +331,39 @@ export default function SumCalculator() {
 > - Sabit sayı ekle: `const total = Number(first) + MULTIPLIER;`
 > - Karesini al: `const total = Number(first) * Number(first);`
 > - Yarısını al: `const total = Number(first) / 2;`
+> ⚠️ İşareti değiştirirsen ekrandaki yazıları da güncelle: başlıktaki "ile çarp", buton yazısındaki `×` ve sonuç metnindeki `×`. Kod bunlar olmadan da çalışır ama ekranda yanlış işlem yazar.
+
+**S13. Bölme yap, ikinci sayı 0 ise "Sıfıra bölünemez!" uyarısı çıksın**
+
+*Soru ne istiyor:* Temel koddaki iki sayılı hesap makinesi bölme yapsın. Kullanıcı ikinci alana 0 yazarsa genel bir mesaj yerine neyin yanlış olduğu söylensin. Kalıp: **önce hatalı durumu kontrol et ve `return` ile çık, sonra asıl işi yap.**
+```jsx
+// state'lerin yanına (component İÇİNDE):
+const [errorMsg, setErrorMsg] = useState('');            // 👈 YENİ: hata mesajı
+
+// handleSum fonksiyonunun YERİNE:
+const handleDivide = () => {
+  if (Number(second) === 0) {                            // 👈 bölen 0 mı? Önce bunu kontrol et
+    setErrorMsg('Sıfıra bölünemez!');
+    setResult(null);
+    return;                                              // 👈 fonksiyondan çık, aşağıdaki bölmeyi yapma
+  }
+  setErrorMsg('');                                       // 👈 sorun yoksa eski hata mesajını temizle
+  const total = Number(first) / Number(second);
+  setResult(Number.isFinite(total) ? total : null);
+};
+
+// Butonda:
+<Button title="Böl" onPress={handleDivide} />            // 👈 handleSum → handleDivide
+
+{/* Sonuç Text'inin ALTINA (sonucu saran View'ın İÇİNE) */}
+{errorMsg !== '' && (
+  <Text style={{ color: '#ef4444', fontWeight: '600' }}>{errorMsg}</Text>
+)}
+```
+> **Alternatif:** uyarı göstermek yerine butonu baştan pasif yap, kullanıcı 0 yazınca basamasın:
+> `disabled={first === '' || second === '' || Number(second) === 0}`
+> Fark: `disabled` hatayı **engeller**, `return` + mesaj ise hatayı yapınca **ne olduğunu söyler**.
+> Temizle butonu (S4) da varsa ona `setErrorMsg('');` eklemeyi unutma.
 
 ---
 
