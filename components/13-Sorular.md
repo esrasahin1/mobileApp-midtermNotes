@@ -1,3 +1,64 @@
+# 13 – Sorular 
+
+---
+
+
+
+### Q1 a) Explain the difference between `onChange` and `onEndEditing` events of the TextInput component. 
+
+> **Answer:**
+> *`onChange` is called **every time the text changes**, so it fires on each keystroke while the user is typing. It receives an event object, and the current text is accessed with `event.nativeEvent.text`.*
+>
+> *`onEndEditing` is called **only once, when the user finishes editing**, for example when the input loses focus or the keyboard is dismissed. It is useful for validating or saving the final value instead of reacting to every keystroke.*
+>
+> *In short: `onChange` → during typing (many times), `onEndEditing` → after typing is finished (once).*
+
+```jsx
+<TextInput
+  onChange={(event) => console.log('typing:', event.nativeEvent.text)}     // her harfte
+  onEndEditing={(event) => console.log('done:', event.nativeEvent.text)}   // yazma bitince bir kez
+/>
+```
+
+> **Ek bilgi (puan kazandırabilir):** *`onChangeText` is similar to `onChange`, but it receives the **text string directly** instead of an event object, so it is the most common choice for controlled inputs: `onChangeText={setValue}`. `onSubmitEditing` is called when the user presses the submit/return key on the keyboard.*
+
+| Event | When it fires | What it receives |
+|---|---|---|
+| `onChange` | On every text change | Event object (`e.nativeEvent.text`) |
+| `onChangeText` | On every text change | The text string directly |
+| `onEndEditing` | Once, when editing ends (blur / keyboard closed) | Event object (`e.nativeEvent.text`) |
+| `onSubmitEditing` | When the keyboard's submit key is pressed | Event object |
+| `onFocus` / `onBlur` | When the input gains / loses focus | Event object |
+
+---
+
+### Q1 b) Explain the purpose of the `keyboardType` prop. List three possible values it can take. 
+
+> **Answer:**
+> *The `keyboardType` prop determines **which type of on-screen keyboard is opened** when the user taps the TextInput. Showing a keyboard that matches the expected input makes typing faster and reduces input errors. For example, a phone number field can open a numeric keypad instead of the full alphabet keyboard.*
+>
+> *Possible values:*
+> - *`'default'` – the standard keyboard with letters*
+> - *`'numeric'` – a keyboard with numbers*
+> - *`'email-address'` – a keyboard with `@` and `.` keys for email input*
+> - *`'phone-pad'` – a phone dial pad*
+> - *`'number-pad'` – digits only (no decimal point)*
+> - *`'decimal-pad'` – digits with a decimal point*
+>
+> *Note: `keyboardType` only changes the keyboard layout; it **does not validate** the input. The value still needs to be checked in code.*
+
+> Soruda üç değer isteniyor, en güvenli üçlü: `default`, `numeric`, `email-address`. Fazladan yazmak zarar vermez.
+> Son cümle (doğrulama yapmaz) önemli: Q2'de "sadece sayı" istendiğinde neden ayrıca `replace` kullandığımızı açıklıyor.
+
+---
+
+### Q2) Joule → cal / kcal çevirici 
+
+**Soru özeti:** Joule (J) değerini calorie (cal) ve kilocalorie (kcal) değerlerine çeviren bir uygulama. Input sadece sayı kabul etmeli. Convert'e basınca `1 cal = 4.184 J` ve `1 kcal = 4184 J` formülleriyle hesaplanıp sonuçlar gösterilmeli. Reset'e basınca Joule değeri temizlenmeli.
+
+**Puanlama:** UI tasarımı (20p) · sadece sayı + doğru formül (10p) · sonuçların gösterilmesi (10p) · Reset (10p)
+
+```jsx
 import { useState } from 'react';
 import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
 
@@ -66,3 +127,143 @@ export default function JouleConverter() {
     </SafeAreaView>
   );
 }
+```
+
+> **Kontrol:** 50 J → cal: 11.950287 · kcal: 0.01195 (sınav kağıdındaki ekran görüntüsüyle aynı)
+
+**Puan kaybettirebilecek hatalar:**
+- Başlıkta `->` yazmak → JSX'te `>` kodu bozar. `→` veya `{'->'}` kullan.
+- Sadece `keyboardType="numeric"` ile yetinmek → web'de harf yazılabilir. `replace(/[^0-9.]/g, '')` ekle.
+- Sadece bir sonucu (kcal) hesaplamak → soru **ikisini** istiyor.
+- Reset'te var olmayan bir state'i sıfırlamaya çalışmak (`setSecond` gibi) → hata.
+- `J / 4184` ile `J * (1 / 4184)` aynı sonuçtur, ikisi de doğru.
+
+---
+
+## 🔁 Bölüm 2 – Aynı Tarzda Olası Kod Soruları
+
+Q2'nin kodu bir **şablon**: tek input → Convert → iki sonuç → Reset. Benzer bir soru gelirse sadece şu dört şey değişir:
+
+1. Başlık ve etiket yazıları
+2. `handleConvert` içindeki **formüller**
+3. Sonuçların adları (`result.cal` → `result.fahrenheit` gibi)
+4. Gerekirse eksi sayı / ondalık izni
+
+### Örnek A: Celsius → Fahrenheit / Kelvin
+```jsx
+// handleConvert İÇİNDE:
+setResult({
+  fahrenheit: j * 9 / 5 + 32,     // °F = °C × 9/5 + 32
+  kelvin: j + 273.15,             // K = °C + 273.15
+});
+
+// Sonuç Text'leri:
+<Text>°F: {result.fahrenheit.toFixed(2)}</Text>
+<Text>K: {result.kelvin.toFixed(2)}</Text>
+
+// ⚠️ Sıcaklık EKSİ olabilir → replace'te eksi işaretine de izin ver:
+setJoule(text.replace(/[^0-9.-]/g, ''));     // 👈 sona "-" eklendi
+```
+
+### Örnek B: Kilometre → Mil / Metre
+```jsx
+setResult({
+  mile: j / 1.609,                // 1 mil = 1.609 km
+  meter: j * 1000,                // 1 km = 1000 m
+});
+```
+
+### Örnek C: TL → USD / EUR (sabit kurla)
+```jsx
+const USD_RATE = 34.5;            // 👈 component DIŞINA (1 USD = 34.5 TL, soruda verilen kur)
+const EUR_RATE = 37.2;
+
+setResult({
+  usd: j / USD_RATE,
+  eur: j / EUR_RATE,
+});
+```
+
+### Örnek D: Kilogram → Pound / Gram
+```jsx
+setResult({
+  pound: j * 2.20462,             // 1 kg = 2.20462 lb
+  gram: j * 1000,
+});
+```
+
+> **Formül nasıl yazılır?** Soruda "1 X = N Y" verilirse:
+> - Y'den X'e çeviriyorsan → **böl**: `X = Y / N` (Joule'den cal'e: 1 cal = 4.184 J → cal = J / 4.184)
+> - X'ten Y'ye çeviriyorsan → **çarp**: `Y = X * N` (cal'den Joule'e: J = cal × 4.184)
+>
+> Emin olamazsan küçük bir sayıyla dene: 4.184 J tam 1 cal etmeli.
+
+### Olası ek istekler (diğer dosyalardaki çözümlerle)
+| İstek | Nasıl yapılır | Nerede |
+|---|---|---|
+| Boşken Convert basılamasın | `disabled={joule === ''}` | Button S7 |
+| Sıfır / eksi girilirse uyarı | `if (j <= 0) { setErrorMsg('...'); return; }` | Button S13 |
+| Enter'a basınca çevirsin | `onSubmitEditing={handleConvert}` | TextInput S16 |
+| Sonuç 2 basamaklı olsun | `.toFixed(2)` | Button S9 |
+| Sonuç renkli / kutu içinde | Sonuç View'ına `backgroundColor`, `padding`, `borderRadius` | View |
+| Butonlar yan yana | `<View style={{ flexDirection: 'row', gap: 12 }}>` + her butonu `<View style={{ flex: 1 }}>` ile sar | Button Kod 2 S10 |
+| Özel tasarımlı buton | `Button` yerine `TouchableOpacity` | Button S11 |
+| Ters yönde çevirme seçeneği | İki Picker ya da radio grubu + seçime göre formül | Picker, RadioButton |
+
+---
+
+## 💬 Bölüm 3 – Olası Teorik Sorular
+
+**1. What is the difference between props and state?**
+> *Props are data passed from a parent component to a child component. They are **read-only**, so the child cannot change them. State is data that belongs to the component itself and **can change over time** with its setter function (e.g. `setCount`). When state changes, the component re-renders.*
+
+**2. What does `useState` do? Explain with an example.**
+> *`useState` is a React hook that adds state to a function component. It returns an array with two elements: the current value and a function to update it. Example: `const [count, setCount] = useState(0);` creates a state variable `count` with initial value `0`, and calling `setCount(count + 1)` updates it and re-renders the component.*
+
+**3. What is the purpose of `useEffect`? What does the dependency array do?**
+> *`useEffect` runs side effects such as timers, API calls or subscriptions after rendering. The dependency array controls when it runs: with no array it runs after every render, with an empty array `[]` it runs only once when the component mounts, and with values `[x]` it runs again whenever `x` changes. The function returned from `useEffect` is a cleanup function, used to stop timers or remove subscriptions.*
+
+**4. What is the difference between ScrollView and FlatList?**
+> *ScrollView renders all of its children at once, so it is suitable for small amounts of content. FlatList uses virtualization and renders only the items currently visible on the screen, which makes it more efficient for long or dynamic lists. FlatList takes `data`, `renderItem` and `keyExtractor` props.*
+
+**5. Why is `keyExtractor` (or the `key` prop) needed in lists?**
+> *Each item in a list needs a unique key so that React can identify which items were added, removed or changed. This allows React to update only the changed items instead of re-rendering the whole list. Using the array index as a key is not recommended when items can be added, removed or reordered.*
+
+**6. What is the difference between Button and TouchableOpacity?**
+> *Button is a simple built-in component that cannot be styled; it only supports `title`, `color` and `disabled`. TouchableOpacity can wrap any content (text, icons, images) and accepts a `style` prop, so it is used to build custom-designed buttons. When pressed, it lowers the opacity of its children as visual feedback.*
+
+**7. How do you display a local image and a remote image with the Image component?**
+> *A local image is loaded with `require`: `source={require('./assets/photo.png')}`; its size is read from the file. A remote image is loaded with a URI object: `source={{ uri: 'https://...' }}`, and in this case `width` and `height` **must** be given in the style, otherwise the image will not be visible.*
+
+**8. Explain the `resizeMode` prop of Image. Give three values.**
+> *`resizeMode` defines how an image is resized to fit its container. `'cover'` fills the container and crops the overflow, `'contain'` shows the whole image inside the container (empty space may remain), and `'stretch'` stretches the image to fill the container without keeping its aspect ratio. Other values are `'center'` and `'repeat'`.*
+
+**9. What is the purpose of SafeAreaView?**
+> *SafeAreaView renders its content within the safe area of the device. It adds padding so that content is not hidden behind the notch, status bar, rounded corners or the home indicator. It is usually placed at the root of a screen. Expo recommends the version from `react-native-safe-area-context` because it works on both iOS and Android.*
+
+**10. How do you hide the text in a password field? Name two other useful TextInput props.**
+> *The `secureTextEntry` prop hides the typed characters (shown as dots). Other useful props: `placeholder` shows a hint text when the input is empty, `maxLength` limits the number of characters, `autoCapitalize="none"` disables automatic capitalization, and `multiline` allows multiple lines of text.*
+
+**11. What is a controlled component? Give an example with TextInput.**
+> *A controlled component is a component whose value is stored in React state and updated through an event handler, so React is the single source of truth. Example: `const [name, setName] = useState('');` and `<TextInput value={name} onChangeText={setName} />`. Every keystroke updates the state, and the input always shows the state value.*
+
+**12. What is the difference between `onPress` and `onLongPress`?**
+> *`onPress` is called when the user taps and releases the component. `onLongPress` is called when the user presses and holds the component for a longer time (about half a second). `onLongPress` is often used for secondary actions such as showing a menu or extra information.*
+
+**13. Explain the difference between `justifyContent` and `alignItems` in Flexbox.**
+> *`justifyContent` aligns children along the **main axis**, and `alignItems` aligns them along the **cross axis**. In React Native the default `flexDirection` is `'column'`, so by default `justifyContent` controls vertical alignment and `alignItems` controls horizontal alignment. When `flexDirection` is `'row'`, they swap.*
+
+**14. What is the difference between `var`, `let` and `const`?**
+> *`var` is function-scoped, can be redeclared and reassigned, and is hoisted with the value `undefined`. `let` is block-scoped and can be reassigned but not redeclared. `const` is block-scoped and cannot be reassigned or redeclared; however, the contents of a `const` object or array can still be modified. `let` and `const` cannot be used before their declaration (temporal dead zone).*
+
+**15. What is the difference between `label` and `value` in `Picker.Item`?**
+> *`label` is the text displayed to the user in the dropdown, while `value` is the internal value stored in state when that option is selected. The state is set with `selectedValue` and updated in `onValueChange`.*
+
+**16. When would you use a radio button, a checkbox, or a Picker?**
+> *Use radio buttons when the user must choose exactly one option and all options should be visible. Use checkboxes when multiple options can be selected independently. Use a Picker when there are many options and screen space is limited.*
+
+**17. What is Expo and what is Expo Go?**
+> *Expo is a framework and set of tools built on top of React Native that simplifies development: no Android Studio or Xcode setup is needed to start. Expo Go is a mobile app that runs Expo projects on a real device by scanning a QR code, so changes can be tested instantly.*
+
+**18. Why must text always be inside a `<Text>` component in React Native?**
+> *Unlike the web, React Native does not allow raw text inside a `View`. All text must be wrapped in a `<Text>` component, because only `Text` knows how to render strings on native platforms. Putting text directly inside a `View` causes an error.*
