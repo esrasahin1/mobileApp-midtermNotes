@@ -2,12 +2,18 @@
 
 `FlatList`, uzun veya değişen listeleri gösteren component'tir. ScrollView'dan farkı: **sadece ekranda görünen elemanları çizer.** Kaydırdıkça yenilerini çizer, görünmeyenleri bellekten atar. Bu yüzden binlerce elemanlı listelerde bile akıcı çalışır.
 
-> **ScrollView ile FlatList farkı (sınav sorusu olabilir):**
-> | ScrollView | FlatList |
-> |---|---|
-> | Tüm elemanları **aynı anda** çizer | Sadece **görünenleri** çizer (virtualization) |
-> | Az eleman için (menü, form) | Çok/değişken eleman için (akış, ürün listesi) |
-> | Elemanları `map` ile kendin üretirsin | `data` + `renderItem` verirsin, kendisi üretir |
+> **ScrollView vs FlatList (exam question):**
+>
+> | | ScrollView | FlatList |
+> |---|---|---|
+> | **Rendering** | Renders **all** children at once | Renders only the **visible** items (virtualization / lazy rendering) |
+> | **Performance** | Slows down with many items (high memory usage) | Stays smooth even with thousands of items |
+> | **Best for** | Small, fixed content: forms, menus, a few cards | Long or dynamic data: feeds, product lists, chats |
+> | **How items are created** | You create them manually with `map()` | You pass `data` + `renderItem`, FlatList creates them |
+> | **Keys** | `key` prop inside `map()` | `keyExtractor` prop |
+> | **Built-in features** | None | `ListHeaderComponent`, `ListFooterComponent`, `ListEmptyComponent`, `ItemSeparatorComponent`, `numColumns`, `onEndReached`, pull-to-refresh |
+>
+> **Short answer:** *ScrollView renders all of its children at once, so it is suitable for small amounts of content. FlatList uses virtualization and renders only the items currently visible on the screen, which makes it more efficient for long or dynamic lists.*
 
 ---
 
