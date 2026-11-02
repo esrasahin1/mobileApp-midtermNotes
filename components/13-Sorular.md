@@ -1,5 +1,6 @@
 # 13 – Sorular 
 
+
 ---
 
 
@@ -267,3 +268,1079 @@ setResult({
 
 **18. Why must text always be inside a `<Text>` component in React Native?**
 > *Unlike the web, React Native does not allow raw text inside a `View`. All text must be wrapped in a `<Text>` component, because only `Text` knows how to render strings on native platforms. Putting text directly inside a `View` causes an error.*
+
+---
+
+## 🧮 Bölüm 4 – Hazır Kod Şablonları (Tam Kodlar)
+
+Her biri **tek başına çalışan tam kod**: Snack'te `App.js`'in tamamının yerine yapıştır. Arayüz yazıları sınav İngilizce olduğu için İngilizce, yorumlar Türkçe.
+
+| # | Kod | Girdi → Çıktı |
+|---|---|---|
+| A1 | Joule → cal | 1 input → 1 sonuç |
+| A2 | Joule → kcal | 1 input → 1 sonuç |
+| A3 | Celsius → Fahrenheit | 1 input → 1 sonuç |
+| A4 | Celsius → Kelvin | 1 input → 1 sonuç |
+| A5 | Kilometer → Mile | 1 input → 1 sonuç |
+| A6 | Kilometer → Meter | 1 input → 1 sonuç |
+| A7 | TL → USD | 1 input → 1 sonuç |
+| A8 | TL → EUR | 1 input → 1 sonuç |
+| A9 | Kilogram → Pound | 1 input → 1 sonuç |
+| A10 | Kilogram → Gram | 1 input → 1 sonuç |
+| B1 | Simple Calculator (+ / −) | 2 input → 1 sonuç |
+| B2 | Currency Converter (USD / EUR / GBP seçimli) | 1 input + seçim → 1 sonuç |
+| B3 | BMI Calculator | 2 input → değer + kategori |
+| B4 | Discount Calculator | 2 input → 2 sonuç |
+
+> **Tek sonuç ile iki sonuç farkı:** iki sonuçta `result` bir nesneydi (`{ cal, kcal }`) ve `result.cal` diye okunuyordu. Tek sonuçta `result` doğrudan **sayıdır**, ekranda `result.toFixed(...)` ile gösterilir.
+
+> **A1–A10 arasındaki tek fark:** başlık, etiket, placeholder, `setResult(...)` içindeki **formül** ve sonuç satırındaki birim. Satırı 👈 ile işaretli. Celsius kodlarında (A3, A4) eksi sayıya izin var.
+
+### A) Tek input → tek sonuç dönüştürücüler
+
+#### A1. Joule → cal
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function JouleToCal() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x / 4.184);                       // 👈 FORMÜL: 1 cal = 4.184 J  → cal = J / 4.184
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Joule to → cal Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          Joule
+        </Text>
+
+        <TextInput
+          placeholder="Joule"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.]/g, ''));   // rakam ve nokta dışındakileri sil (sadece sayı)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            cal: {result.toFixed(4)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+#### A2. Joule → kcal
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function JouleToKcal() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x / 4184);                       // 👈 FORMÜL: 1 kcal = 4184 J  → kcal = J / 4184
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Joule to → kcal Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          Joule
+        </Text>
+
+        <TextInput
+          placeholder="Joule"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.]/g, ''));   // rakam ve nokta dışındakileri sil (sadece sayı)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            kcal: {result.toFixed(5)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+#### A3. Celsius → Fahrenheit
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function CelsiusToFahrenheit() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x * 9 / 5 + 32);                       // 👈 FORMÜL: °F = °C × 9/5 + 32
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Celsius to → Fahrenheit Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          Celsius
+        </Text>
+
+        <TextInput
+          placeholder="Celsius"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.-]/g, ''));   // rakam, nokta ve eksi dışındakileri sil (sıcaklık eksi olabilir)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            °F: {result.toFixed(2)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+#### A4. Celsius → Kelvin
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function CelsiusToKelvin() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x + 273.15);                       // 👈 FORMÜL: K = °C + 273.15
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Celsius to → Kelvin Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          Celsius
+        </Text>
+
+        <TextInput
+          placeholder="Celsius"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.-]/g, ''));   // rakam, nokta ve eksi dışındakileri sil (sıcaklık eksi olabilir)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            K: {result.toFixed(2)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+#### A5. Kilometer → Mile
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function KmToMile() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x / 1.609);                       // 👈 FORMÜL: 1 mi = 1.609 km  → mi = km / 1.609
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Kilometer to → Mile Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          Kilometer
+        </Text>
+
+        <TextInput
+          placeholder="Kilometer"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.]/g, ''));   // rakam ve nokta dışındakileri sil (sadece sayı)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            mi: {result.toFixed(3)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+#### A6. Kilometer → Meter
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function KmToMeter() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x * 1000);                       // 👈 FORMÜL: 1 km = 1000 m  → m = km × 1000
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Kilometer to → Meter Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          Kilometer
+        </Text>
+
+        <TextInput
+          placeholder="Kilometer"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.]/g, ''));   // rakam ve nokta dışındakileri sil (sadece sayı)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            m: {result.toFixed(2)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+#### A7. TL → USD
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+const USD_RATE = 34.5;   // 👈 ÖRNEK kur (1 USD = 34.5 TL). Soruda verilen kurla değiştir
+
+export default function TlToUsd() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x / USD_RATE);                       // 👈 FORMÜL: 1 USD = USD_RATE TL  → USD = TL / kur
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          TL to → USD Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          TL
+        </Text>
+
+        <TextInput
+          placeholder="TL"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.]/g, ''));   // rakam ve nokta dışındakileri sil (sadece sayı)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            USD: {result.toFixed(2)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+#### A8. TL → EUR
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+const EUR_RATE = 37.2;   // 👈 ÖRNEK kur (1 EUR = 37.2 TL). Soruda verilen kurla değiştir
+
+export default function TlToEur() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x / EUR_RATE);                       // 👈 FORMÜL: 1 EUR = EUR_RATE TL  → EUR = TL / kur
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          TL to → EUR Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          TL
+        </Text>
+
+        <TextInput
+          placeholder="TL"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.]/g, ''));   // rakam ve nokta dışındakileri sil (sadece sayı)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            EUR: {result.toFixed(2)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+#### A9. Kilogram → Pound
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function KgToPound() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x * 2.20462);                       // 👈 FORMÜL: 1 kg = 2.20462 lb  → lb = kg × 2.20462
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Kilogram to → Pound Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          Kilogram
+        </Text>
+
+        <TextInput
+          placeholder="Kilogram"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.]/g, ''));   // rakam ve nokta dışındakileri sil (sadece sayı)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            lb: {result.toFixed(3)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+#### A10. Kilogram → Gram
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function KgToGram() {
+  const [value, setValue] = useState('');      // input'taki değer (yazı olarak)
+  const [result, setResult] = useState(null);  // sonuç: sayı ya da null (henüz hesaplanmadı)
+
+  // CONVERT
+  const handleConvert = () => {
+    const x = Number(value);
+    if (!Number.isFinite(x)) {                 // sayı değilse sonuç gösterme
+      setResult(null);
+      return;
+    }
+    setResult(x * 1000);                       // 👈 FORMÜL: 1 kg = 1000 g  → g = kg × 1000
+  };
+
+  // RESET
+  const handleReset = () => {
+    setValue('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Kilogram to → Gram Converter
+        </Text>
+        <Text style={{ fontSize: 16, fontWeight: 'bold', color: '#0f172a', textAlign: 'center' }}>
+          Kilogram
+        </Text>
+
+        <TextInput
+          placeholder="Kilogram"
+          keyboardType="numeric"
+          value={value}
+          onChangeText={(text) => {
+            setValue(text.replace(/[^0-9.]/g, ''));   // rakam ve nokta dışındakileri sil (sadece sayı)
+            setResult(null);                                // sayı değişince eski sonucu sil
+          }}
+          style={{
+            borderWidth: 1,
+            borderColor: '#d4d4d8',
+            borderRadius: 10,
+            paddingHorizontal: 12,
+            paddingVertical: 12,
+            backgroundColor: '#fff',
+          }}
+        />
+
+        <Button title="Convert" onPress={handleConvert} disabled={value === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {/* Sonuç: sadece hesaplandıysa görünür */}
+        {result !== null && (
+          <Text style={{ fontSize: 18, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+            g: {result.toFixed(2)}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+
+### B) Diğer hesaplayıcılar
+
+#### B1. Simple Calculator (Toplama / Çıkarma)
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function SimpleCalculator() {
+  const [first, setFirst] = useState('');       // 1. sayı
+  const [second, setSecond] = useState('');     // 2. sayı
+  const [result, setResult] = useState(null);   // sonuç metni ya da null
+
+  // İşlemi yap: op → '+' veya '-'
+  const calculate = (op) => {
+    const a = Number(first);
+    const b = Number(second);
+    if (!Number.isFinite(a) || !Number.isFinite(b)) {   // biri bile sayı değilse
+      setResult(null);
+      return;
+    }
+    const total = op === '+' ? a + b : a - b;           // 👈 işarete göre topla ya da çıkar
+    setResult(`${a} ${op} ${b} = ${total}`);            // ekranda "5 + 3 = 8" gibi görünsün
+  };
+
+  // RESET: iki input'u ve sonucu temizle
+  const handleReset = () => {
+    setFirst('');
+    setSecond('');
+    setResult(null);
+  };
+
+  const isEmpty = first === '' || second === '';        // biri boşsa işlem butonları pasif
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Simple Calculator
+        </Text>
+
+        <TextInput
+          placeholder="First number"
+          keyboardType="numeric"
+          value={first}
+          onChangeText={(text) => {
+            setFirst(text.replace(/[^0-9.-]/g, ''));    // sayı, nokta ve eksi (negatif sayılar için)
+            setResult(null);
+          }}
+          style={{ borderWidth: 1, borderColor: '#d4d4d8', borderRadius: 10, padding: 12, backgroundColor: '#fff' }}
+        />
+        <TextInput
+          placeholder="Second number"
+          keyboardType="numeric"
+          value={second}
+          onChangeText={(text) => {
+            setSecond(text.replace(/[^0-9.-]/g, ''));
+            setResult(null);
+          }}
+          style={{ borderWidth: 1, borderColor: '#d4d4d8', borderRadius: 10, padding: 12, backgroundColor: '#fff' }}
+        />
+
+        {/* + ve − butonları yan yana, eşit genişlikte */}
+        <View style={{ flexDirection: 'row', gap: 12 }}>
+          <View style={{ flex: 1 }}>
+            <Button title="+" onPress={() => calculate('+')} disabled={isEmpty} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Button title="−" onPress={() => calculate('-')} disabled={isEmpty} />
+          </View>
+        </View>
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {result !== null && (
+          <Text style={{ fontSize: 22, fontWeight: '700', color: '#2563eb', textAlign: 'center' }}>
+            {result}
+          </Text>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+> `calculate('+')` ve `calculate('-')` aynı fonksiyonu kullanıyor, hangi işlemin yapılacağını parametre belirliyor. Çarpma/bölme eklemek için: `op === '*' ? a * b : ...` dalları ve iki buton daha (Button dosyası S3). Eksi sayıya izin verildi.
+
+#### B2. Currency Converter (Para Birimi Dönüştürücü)
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, TouchableOpacity, View } from 'react-native';
+
+// 1 birim yabancı para = kaç TL (ÖRNEK kurlar, soruda verilen kurlarla değiştir)
+const RATES = {
+  USD: 34.5,
+  EUR: 37.2,
+  GBP: 44.0,
+};
+const CURRENCIES = Object.keys(RATES);          // ['USD', 'EUR', 'GBP'] → butonlar bundan üretilir
+
+export default function CurrencyConverter() {
+  const [amount, setAmount] = useState('');     // TL miktarı
+  const [currency, setCurrency] = useState('USD');   // seçili hedef para birimi
+  const [result, setResult] = useState(null);
+
+  const handleConvert = () => {
+    const tl = Number(amount);
+    if (!Number.isFinite(tl)) {
+      setResult(null);
+      return;
+    }
+    setResult(tl / RATES[currency]);            // 👈 FORMÜL: TL / kur (ör. 345 TL / 34.5 = 10 USD)
+  };
+
+  const handleReset = () => {
+    setAmount('');
+    setResult(null);
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Currency Converter
+        </Text>
+
+        <TextInput
+          placeholder="Amount (TL)"
+          keyboardType="numeric"
+          value={amount}
+          onChangeText={(text) => {
+            setAmount(text.replace(/[^0-9.]/g, ''));
+            setResult(null);
+          }}
+          style={{ borderWidth: 1, borderColor: '#d4d4d8', borderRadius: 10, padding: 12, backgroundColor: '#fff' }}
+        />
+
+        {/* PARA BİRİMİ SEÇİMİ: radio mantığı (tek seçim), her birim için bir buton */}
+        <View style={{ flexDirection: 'row', gap: 8, justifyContent: 'center' }}>
+          {CURRENCIES.map((c) => {
+            const isActive = c === currency;
+            return (
+              <TouchableOpacity
+                key={c}
+                onPress={() => {
+                  setCurrency(c);
+                  setResult(null);                  // birim değişince eski sonucu sil
+                }}
+                style={{
+                  paddingVertical: 10,
+                  paddingHorizontal: 18,
+                  borderRadius: 999,
+                  backgroundColor: isActive ? '#2563eb' : '#e2e8f0',
+                }}
+              >
+                <Text style={{ color: isActive ? '#fff' : '#0f172a', fontWeight: '600' }}>{c}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <Button title="Convert" onPress={handleConvert} disabled={amount === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {result !== null && (
+          <Text style={{ fontSize: 22, fontWeight: '700', color: '#2563eb', textAlign: 'center' }}>
+            {amount} TL = {result.toFixed(2)} {currency}
+          </Text>
+        )}
+        <Text style={{ color: '#94a3b8', textAlign: 'center' }}>
+          1 {currency} = {RATES[currency]} TL
+        </Text>
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+> Kurlar **örnek** değerler, sınavda soruda verilen kuru yaz. Yeni birim eklemek için `RATES`'e bir satır eklemek yeterli (`JPY: 0.23`), buton otomatik oluşur.
+> **Ters yön (yabancı para → TL):** formül `tl * RATES[currency]` olur ve yazılar değişir.
+
+#### B3. BMI Calculator (Vücut Kitle İndeksi)
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+// BMI kategorisi ve rengi (component DIŞINDA yardımcı fonksiyon)
+const getCategory = (bmi) => {
+  if (bmi < 18.5) return { label: 'Underweight', color: '#3b82f6' };     // zayıf
+  if (bmi < 25) return { label: 'Normal', color: '#22c55e' };            // normal
+  if (bmi < 30) return { label: 'Overweight', color: '#f97316' };        // fazla kilolu
+  return { label: 'Obese', color: '#ef4444' };                           // obez
+};
+
+export default function BmiCalculator() {
+  const [weight, setWeight] = useState('');     // kilo (kg)
+  const [height, setHeight] = useState('');     // boy (cm)
+  const [bmi, setBmi] = useState(null);         // sonuç
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleCalculate = () => {
+    const w = Number(weight);
+    const h = Number(height) / 100;             // 👈 cm → metre (175 cm → 1.75 m)
+    if (!(w > 0) || !(h > 0)) {                 // 0, eksi ya da sayı değilse
+      setErrorMsg('Please enter valid weight and height.');
+      setBmi(null);
+      return;
+    }
+    setErrorMsg('');
+    setBmi(w / (h * h));                        // 👈 FORMÜL: BMI = kg / (m × m)
+  };
+
+  const handleReset = () => {
+    setWeight('');
+    setHeight('');
+    setBmi(null);
+    setErrorMsg('');
+  };
+
+  const category = bmi !== null ? getCategory(bmi) : null;   // hesaplandıysa kategori
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          BMI Calculator
+        </Text>
+
+        <TextInput
+          placeholder="Weight (kg)"
+          keyboardType="numeric"
+          value={weight}
+          onChangeText={(text) => {
+            setWeight(text.replace(/[^0-9.]/g, ''));
+            setBmi(null);
+          }}
+          style={{ borderWidth: 1, borderColor: '#d4d4d8', borderRadius: 10, padding: 12, backgroundColor: '#fff' }}
+        />
+        <TextInput
+          placeholder="Height (cm)"
+          keyboardType="numeric"
+          value={height}
+          onChangeText={(text) => {
+            setHeight(text.replace(/[^0-9.]/g, ''));
+            setBmi(null);
+          }}
+          style={{ borderWidth: 1, borderColor: '#d4d4d8', borderRadius: 10, padding: 12, backgroundColor: '#fff' }}
+        />
+
+        <Button title="Calculate" onPress={handleCalculate} disabled={weight === '' || height === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {errorMsg !== '' && (
+          <Text style={{ color: '#ef4444', textAlign: 'center' }}>{errorMsg}</Text>
+        )}
+
+        {/* Sonuç: değer + renkli kategori */}
+        {bmi !== null && (
+          <View style={{ alignItems: 'center', gap: 4 }}>
+            <Text style={{ fontSize: 28, fontWeight: '700', color: category.color }}>
+              {bmi.toFixed(1)}
+            </Text>
+            <Text style={{ fontSize: 18, fontWeight: '600', color: category.color }}>
+              {category.label}
+            </Text>
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+> **Formül:** BMI = kilo (kg) / boy² (m). Boy cm girildiği için önce 100'e bölünüyor. Kontrol: 70 kg, 175 cm → 22.9 (Normal).
+> Kategori sınırları: < 18.5 Underweight, 18.5–24.9 Normal, 25–29.9 Overweight, ≥ 30 Obese. Kategori ve rengi tek bir yardımcı fonksiyondan geliyor, eşikleri orada değiştirebilirsin.
+
+#### B4. Discount Calculator (İndirim Hesaplama)
+```jsx
+import { useState } from 'react';
+import { Button, SafeAreaView, Text, TextInput, View } from 'react-native';
+
+export default function DiscountCalculator() {
+  const [price, setPrice] = useState('');       // ürün fiyatı
+  const [percent, setPercent] = useState('');   // indirim yüzdesi
+  const [result, setResult] = useState(null);   // { discount, finalPrice } ya da null
+  const [errorMsg, setErrorMsg] = useState('');
+
+  const handleCalculate = () => {
+    const p = Number(price);
+    const d = Number(percent);
+    if (!Number.isFinite(p) || !Number.isFinite(d)) {
+      setResult(null);
+      return;
+    }
+    if (d > 100) {                              // %100'den fazla indirim olamaz
+      setErrorMsg('Discount cannot be more than 100%.');
+      setResult(null);
+      return;
+    }
+    setErrorMsg('');
+    const discount = (p * d) / 100;             // 👈 indirim tutarı = fiyat × yüzde / 100
+    setResult({
+      discount,
+      finalPrice: p - discount,                 // 👈 son fiyat = fiyat − indirim
+    });
+  };
+
+  const handleReset = () => {
+    setPrice('');
+    setPercent('');
+    setResult(null);
+    setErrorMsg('');
+  };
+
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+      <View style={{ flex: 1, justifyContent: 'center', padding: 24, gap: 16 }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: '#0f172a', textAlign: 'center' }}>
+          Discount Calculator
+        </Text>
+
+        <TextInput
+          placeholder="Price (TL)"
+          keyboardType="numeric"
+          value={price}
+          onChangeText={(text) => {
+            setPrice(text.replace(/[^0-9.]/g, ''));
+            setResult(null);
+          }}
+          style={{ borderWidth: 1, borderColor: '#d4d4d8', borderRadius: 10, padding: 12, backgroundColor: '#fff' }}
+        />
+        <TextInput
+          placeholder="Discount (%)"
+          keyboardType="numeric"
+          maxLength={3}                             // en fazla 3 hane (100)
+          value={percent}
+          onChangeText={(text) => {
+            setPercent(text.replace(/[^0-9.]/g, ''));
+            setResult(null);
+          }}
+          style={{ borderWidth: 1, borderColor: '#d4d4d8', borderRadius: 10, padding: 12, backgroundColor: '#fff' }}
+        />
+
+        <Button title="Calculate" onPress={handleCalculate} disabled={price === '' || percent === ''} />
+        <Button title="Reset" color="#ef4444" onPress={handleReset} />
+
+        {errorMsg !== '' && (
+          <Text style={{ color: '#ef4444', textAlign: 'center' }}>{errorMsg}</Text>
+        )}
+
+        {result !== null && (
+          <View style={{ gap: 4, alignItems: 'center' }}>
+            <Text style={{ fontSize: 16, color: '#475569' }}>
+              Discount: {result.discount.toFixed(2)} TL
+            </Text>
+            <Text style={{ fontSize: 22, fontWeight: '700', color: '#16a34a' }}>
+              Final price: {result.finalPrice.toFixed(2)} TL
+            </Text>
+          </View>
+        )}
+      </View>
+    </SafeAreaView>
+  );
+}
+```
+> **Formül:** indirim = fiyat × yüzde / 100 · son fiyat = fiyat − indirim. Kontrol: 200 TL, %15 → indirim 30.00 TL, son fiyat 170.00 TL.
+> %100'den büyük yüzde girilirse hata mesajı çıkar (Button S13'teki `return` kalıbı).
