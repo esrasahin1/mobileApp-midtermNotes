@@ -20,7 +20,7 @@ Hocanın W6 component örnekleri ([zeki-ozen/MobileAppDevelopment](https://githu
 | 09 | [SafeAreaView](components/09-SafeAreaView.md) | Onboarding · Çentikli başlık | Geri/Atla butonu, ilerleme noktaları |
 | 10 | [Picker](components/10-Picker.md) | Seviye seçici · Filtreli liste | label vs value, "Tümü" seçeneği |
 | 11 | [RadioButton](components/11-RadioButton.md) | Kendi RadioItem'ımız · Kart radio | Props ile renk, ikinci grup |
-| 12 | [Checkbox](components/12-Checkbox.md) | Görev listesi · Ayarlar formu | Koşulları kabul et, some vs every |
+| 12 | [CheckBox](components/12-Checkbox.md) | Görev listesi · Ayarlar formu | Koşulları kabul et, some vs every |
 
 ## 📦 Ayrı paket gerektirenler (Snack'te "Add dependency")
 - Picker → `import { Picker } from '@react-native-picker/picker';`
